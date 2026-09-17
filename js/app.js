@@ -8,9 +8,14 @@
   const pageRange = document.querySelector("#page-range");
   const previousButton = document.querySelector("#previous-page");
   const nextButton = document.querySelector("#next-page");
+  const reloadButton = document.querySelector("#reload-ranking");
 
   let rankings = [];
   let currentPage = 0;
+  let api = null;
+  let isLoading = false;
+  let reloadAvailableAt = 0;
+  let reloadTimerId = null;
 
   function setStatus(message, { error = false } = {}) {
     status.textContent = message;
@@ -64,6 +69,23 @@
     );
   }
 
+  function updateReloadButton() {
+    const remainingSeconds = Math.max(0, Math.ceil((reloadAvailableAt - Date.now()) / 1000));
+    const isCoolingDown = remainingSeconds > 0;
+    reloadButton.disabled = isLoading || isCoolingDown;
+    reloadButton.textContent = isCoolingDown ? `再読み込み (${remainingSeconds})` : "再読み込み";
+
+    window.clearTimeout(reloadTimerId);
+    if (isCoolingDown) {
+      reloadTimerId = window.setTimeout(updateReloadButton, 250);
+    }
+  }
+
+  function startReloadCooldown() {
+    reloadAvailableAt = Date.now() + 10_000;
+    updateReloadButton();
+  }
+
   previousButton.addEventListener("click", () => {
     if (currentPage === 0) return;
     currentPage -= 1;
@@ -76,9 +98,21 @@
     renderPage();
   });
 
-  async function loadRanking() {
+  reloadButton.addEventListener("click", () => {
+    if (reloadButton.disabled) return;
+    startReloadCooldown();
+    loadRanking({ isRefresh: true });
+  });
+
+  async function loadRanking({ isRefresh = false } = {}) {
+    isLoading = true;
+    updateReloadButton();
+    setStatus(isRefresh ? "ランキングを更新しています…" : "ランキングを読み込んでいます…");
+
     try {
-      const api = new window.RankingApi({ gasUrl: window.RANKING_GAS_URL });
+      if (!api) {
+        api = new window.RankingApi({ gasUrl: window.RANKING_GAS_URL });
+      }
       await api.initialize();
       const data = await api.getRanking(100);
 
@@ -88,6 +122,7 @@
 
       rankings = data.filter(isRankingEntry).slice(0, 100);
       if (rankings.length === 0) {
+        content.hidden = true;
         setStatus("ランキングデータはありません");
         return;
       }
@@ -97,8 +132,11 @@
       renderPage();
     } catch (error) {
       console.error("Failed to load ranking:", error);
-      content.hidden = true;
+      if (!isRefresh) content.hidden = true;
       setStatus("ランキング取得失敗", { error: true });
+    } finally {
+      isLoading = false;
+      updateReloadButton();
     }
   }
 

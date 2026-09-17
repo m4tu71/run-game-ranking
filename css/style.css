@@ -80,6 +80,16 @@ h2 {
   font-size: 0.875rem;
 }
 
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.panel-actions button {
+  min-width: 104px;
+}
+
 .status {
   padding: 28px 24px;
 }
@@ -172,5 +182,17 @@ button:disabled {
   .pagination {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .panel-header {
+    align-items: center;
+  }
+
+  .panel-actions {
+    gap: 8px;
+  }
+
+  .panel-actions button {
+    min-width: auto;
   }
 }
