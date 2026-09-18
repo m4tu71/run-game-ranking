@@ -46,6 +46,9 @@
     body.replaceChildren();
     for (const entry of pageItems) {
       const row = document.createElement("tr");
+      if (entry.rank >= 1 && entry.rank <= 3) {
+        row.classList.add(`rank-${entry.rank}`);
+      }
       appendCell(row, `${entry.rank}位`);
       appendCell(row, entry.name);
       appendCell(row, formatScore(entry.score), "number");
