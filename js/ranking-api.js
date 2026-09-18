@@ -145,5 +145,5 @@
   }
 
   window.RankingApi = RankingApi;
-  window.RANKING_GAS_URL = "https://script.google.com/macros/s/AKfycbwvyJTDx-8-tWrb-xRyHxoebE1HxPNf_GN4cHYi5fEs8OOQvwfUIC10JVI-77FG20ECxw/exec";
+  window.RANKING_GAS_URL = "https://script.google.com/macros/s/AKfycbzEZ-YN0N-sRLlHPLDMyPmz11Ey45UBpeNw84XCVYlpqxHMmdwx3l4iohlc4WMLeivfUw/exec";
 })();
